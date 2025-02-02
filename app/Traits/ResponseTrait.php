@@ -49,8 +49,13 @@ trait ResponseTrait
         ], $code);
     }
 
-    public function badRequestResponse(string $message = '', int $code = 400, array $data = [])
+    public function badRequestResponse(string $message = '', int $code = 400, array $data = [], \Exception $exception = null)
     {
+        if ($exception != null) {
+            Log::error(
+                "{$exception->getMessage()} on line {$exception->getLine()} in {$exception->getFile()}"
+            );
+        }
 
         $defaultMessage = 'The request could not be processed due to invalid or missing data.';
 
