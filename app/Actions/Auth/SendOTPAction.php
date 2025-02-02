@@ -28,9 +28,9 @@ class SendOTPAction
         }
 
         //can not request for a new otp before the previous expires
-        if ($user->otp_created_at && now()->lessThan(Carbon::parse($user->otp_created_at)->addMinutes($delayInMinutes))) {
-            return $this->badRequestResponse("Wait {$delayInMinutes} minutes before making another request.");
-        }
+        // if ($user->otp_created_at && now()->lessThan(Carbon::parse($user->otp_created_at)->addMinutes($delayInMinutes))) {
+        //     return $this->badRequestResponse("Wait {$delayInMinutes} minutes before making another request.");
+        // }
 
         $otp = $this->generateOTP();
 
