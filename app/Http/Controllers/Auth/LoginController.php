@@ -21,7 +21,7 @@ class LoginController extends Controller
             ->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            return $this->errorResponse('This user does not exist. please register');
+            return $this->badRequestResponse('This user does not exist. please register');
         }
 
         if (! Auth::attempt(['email' => $user->email, 'password' => $request->password])) {

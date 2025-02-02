@@ -15,13 +15,22 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/url', function (Request $request) {
+    return response()->json(['url' => config('app.url') . "/hello"]);
+});
+
 Route::middleware(['auth:sanctum'])->prefix('auth')->group(function () {
     Route::post('/logout', [LogoutController::class, 'destroy'])->name('logout');
 });
 
+Route::middleware(['guest'])->prefix('auth')->group(function () {
+    Route::post('/register', [RegisterController::class, 'store'])->name('register');
+    Route::post('/login', [LoginController::class, 'store'])->name('login');
+});
+
 Route::middleware(['guest'])->group(function () {
-    Route::post('/forgot-password', [ResetPasswordController::class, 'sendLink'])->name('password.email');
-    Route::post('/add-otp', [ResetPasswordController::class, 'addOTP'])->name('add-otp');
+    Route::post('/forgot-password', [ResetPasswordController::class, 'sendOTP'])->name('password.email');
+    Route::post('/authenticate-otp', [ResetPasswordController::class, 'authenticateOTP']);
     Route::post('/reset-password', [ResetPasswordController::class, 'updatePassword'])->name('password.update');
 });
 
@@ -52,11 +61,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/vendors/{vendor}', [VendorController::class, 'destroy']);
 });
 
-
-Route::middleware(['guest'])->prefix('auth')->group(function () {
-    Route::post('/register', [RegisterController::class, 'store'])->name('register');
-    Route::post('/login', [LoginController::class, 'store'])->name('login');
-});
 
 
 

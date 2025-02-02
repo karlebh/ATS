@@ -3,52 +3,47 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\AddOTPAction;
+use App\Actions\Auth\AuthenticateOTPAction;
 use App\Actions\Auth\ResetPasswordAction;
 use App\Actions\Auth\SendForgotPasswordLinkAction;
+use App\Actions\Auth\SendOTPAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PasswordOTPRequest;
 use App\Http\Requests\PasswordResetRequest;
+use App\Http\Requests\UpdatePasswordRequest;
+use App\Models\User;
 use App\Traits\ResponseTrait;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 
 class ResetPasswordController extends Controller
 {
     use ResponseTrait;
 
-    public function sendLink(PasswordResetRequest $request)
+    public function sendOTP(PasswordResetRequest $request)
     {
         try {
-            (new SendForgotPasswordLinkAction())->execute($request->validated());
+            return (new SendOTPAction())->execute($request->validated());
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("An error occurred", $exception);
         }
     }
 
-    public function addOTP(Request $request)
+    public function authenticateOTP(PasswordOTPRequest $request)
     {
-        $requestData = $request->validate([
-            'otp' => 'required|numeric|digits:6',
-        ], [
-            'otp.required' => 'The OTP field is required.',
-            'otp.numeric' => 'The OTP must be a number.',
-            'otp.digits' => 'The OTP must be exactly 6 digits.',
-        ]);
-
         try {
-            (new AddOTPAction())->execute($requestData);
+            return (new AuthenticateOTPAction())->execute($request->validated());
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("An error occurred", $exception);
         }
     }
 
-    public function updatePassword(Request $request)
+    public function updatePassword(UpdatePasswordRequest $request)
     {
-        $requestData = $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
-        ]);
         try {
-            (new ResetPasswordAction())->execute($requestData);
+            return (new ResetPasswordAction())->execute($request->validated());
         } catch (\Exception $exception) {
             return $this->serverErrorResponse("An error occurred", $exception);
         }

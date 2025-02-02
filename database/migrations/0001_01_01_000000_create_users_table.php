@@ -17,6 +17,9 @@ return new class extends Migration
             $table->enum('role', ['admin', 'floor_team', 'inspection_team'])->default('inspection_team');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('otp')->nullable();
+            $table->timestamp('otp_created_at')->nullable();
+            $table->timestamp('otp_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

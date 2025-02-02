@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -17,15 +18,23 @@ class PasswordResetLinkController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email'],
+        $requestData = $request->validate([
+            'data' => ['required', 'string'],
         ]);
+
+        $user = User::where('email', $requestData['data'])
+            ->orWhere('username', $requestData['data'])
+            ->first();
+
+        if (! $user) {
+            return response()->json(['message' => 'No user data found', 'status' => 404]);
+        }
 
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
         $status = Password::sendResetLink(
-            $request->only('email')
+            ['email' => $user->email]
         );
 
         if ($status != Password::RESET_LINK_SENT) {
@@ -34,6 +43,6 @@ class PasswordResetLinkController extends Controller
             ]);
         }
 
-        return response()->json(['status' => __($status)]);
+        return response()->json(['status' => __($status)], 200);
     }
 }

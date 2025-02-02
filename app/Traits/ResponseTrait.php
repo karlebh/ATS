@@ -26,29 +26,8 @@ trait ResponseTrait
         return Response::json($response, 500);
     }
 
-    // public function errorResponse($message, \Error $error = null): JsonResponse
-    // {
-    //     if ($error !== null) {
-    //         Log::error(
-    //             "{$error->getMessage()} on line {$error->getLine()} in {$error->getFile()}"
-    //         );
-    //     }
-    //     $response = [
-    //         'status' => config('go54.status.failed'),
-    //         'code' => config('go54.code.server_error'),
-    //         'message' => ($this->isProd()) ? "There was an error in your request" : $message,
-    //     ];
-
-    //     if (config('app.debug')) {
-    //         $response['debug'] = $this->appendDebugData($error);
-    //     }
-
-    //     return Response::json($response, ($this->isProd()) ? 406 : 500);
-    // }
-
     public function successResponse(string $message = 'Operation successful', array $data = [], int $code = 200)
     {
-        Log::error('Success');
         return response()->json([
             'status' => true,
             'message' => $message,
@@ -66,6 +45,18 @@ trait ResponseTrait
         return response()->json([
             'status' => false,
             'message' => $message,
+            'data' => $data,
+        ], $code);
+    }
+
+    public function badRequestResponse(string $message = '', int $code = 400, array $data = [])
+    {
+
+        $defaultMessage = 'The request could not be processed due to invalid or missing data.';
+
+        return response()->json([
+            'status' => false,
+            'message' => !empty($message) ? $message : $defaultMessage,
             'data' => $data,
         ], $code);
     }

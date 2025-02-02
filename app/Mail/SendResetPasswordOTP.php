@@ -10,14 +10,14 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendResetPasswordLink extends Mailable
+class SendResetPasswordOTP extends Mailable
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(public User $user)
+    public function __construct(public User $user, public $otp)
     {
         //
     }
@@ -28,7 +28,7 @@ class SendResetPasswordLink extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: config('app.name') . " Password Reset Mail",
+            subject: config('app.name') . ' Reset Password OTP',
         );
     }
 
@@ -38,7 +38,7 @@ class SendResetPasswordLink extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.password-reset',
+            view: 'mail.password-otp',
         );
     }
 

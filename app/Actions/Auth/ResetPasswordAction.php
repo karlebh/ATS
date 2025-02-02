@@ -6,6 +6,7 @@ use App\Mail\SendResetPasswordLink;
 use App\Models\User;
 use App\Traits\ResponseTrait;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
@@ -13,23 +14,25 @@ use Illuminate\Support\Str;
 
 class ResetPasswordAction
 {
+    use ResponseTrait;
+
     public function execute(array $requestData)
     {
-        $status = Password::reset(
-            [$requestData['email'], $requestData['password'], $requestData['password_confirmation'], $requestData['token']],
-            function (User $user, string $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password)
-                ])->setRememberToken(Str::random(60));
+        $user = User::where('email', $requestData['email'])->first();
 
-                $user->save();
+        if (! $user) {
+            return $this->badRequestResponse('User not found');
+        }
 
-                event(new PasswordReset($user));
-            }
-        );
+        $user->forceFill([
+            'password' => Hash::make($requestData['password']),
+            'remember_token' => Str::random(60),
+        ])->save();
 
-        return $status === Password::PasswordReset
-            ? redirect()->route('login')->with('status', __($status))
-            : back()->withErrors(['email' => [__($status)]]);
+        DB::table('password_reset_tokens')->where('token', $requestData['token'])->delete();
+
+        event(new PasswordReset($user));
+
+        return $this->successResponse('Password updated succesfully');
     }
 }
