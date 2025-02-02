@@ -30,6 +30,11 @@ class VendorController extends Controller
         return $this->successResponse('All vendors', ['vendors' => $vendors]);
     }
 
+    public function show(Vendor $vendor)
+    {
+        return $this->successResponse('Vendor', ['vendor' => $vendor]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -47,17 +52,6 @@ class VendorController extends Controller
         return $this->successResponse('Vendor created', ['vendor' => $vendor]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Vendor $vendor)
-    {
-        return $this->successResponse('Vendor', ['vendor' => $vendor]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Vendor $vendor)
     {
 
