@@ -29,7 +29,9 @@ Route::middleware(['guest'])->prefix('auth')->group(function () {
 });
 
 Route::middleware(['guest'])->group(function () {
-    Route::post('/forgot-password', [ResetPasswordController::class, 'sendOTP'])->name('password.email');
+    Route::post('/forgot-password', [ResetPasswordController::class, 'sendOTP'])->name('password.email')
+        // ->middleware('throttle:2,1')
+    ;
     Route::post('/authenticate-otp', [ResetPasswordController::class, 'authenticateOTP']);
     Route::post('/reset-password', [ResetPasswordController::class, 'updatePassword'])->name('password.update');
 });
@@ -37,12 +39,14 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/purchase-orders', [PurchaseOrderController::class, 'index']);
-    Route::get('/purchase-orders/{purchase-order}', [PurchaseOrderController::class, 'show']);
     Route::get('/purchase-orders/export', [PurchaseOrderController::class, 'export']);
+    Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show']);
+    Route::get('/recent-purchase-orders', [PurchaseOrderController::class, 'recentPurchaseOrders']);
+
     Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
-    Route::patch('/purchase-orders/{purchase-order}', [PurchaseOrderController::class, 'update']);
+    Route::patch('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update']);
     Route::post('/purchase-orders/import', [PurchaseOrderController::class, 'import']);
-    Route::delete('/purchase-orders/{purchase-order}', [PurchaseOrderController::class, 'destroy']);
+    Route::delete('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'destroy']);
 
 
     Route::get('/clients', [ClientController::class, 'index']);

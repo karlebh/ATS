@@ -7,6 +7,8 @@ use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Models\PurchaseOrder;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 
 class PurchaseOrderController extends Controller
 {
@@ -15,6 +17,12 @@ class PurchaseOrderController extends Controller
     public function index()
     {
         return $this->successResponse('All Purchase Orders', ['purchase_orders' => PurchaseOrder::paginate(8)]);
+    }
+
+    public function recentPurchaseOrders()
+    {
+        $purchase_orders = PurchaseOrder::latest()->paginate(8);
+        return $this->successResponse('Recent Purchase Orders', ['purchase_orders' => $purchase_orders]);
     }
 
     public function show(PurchaseOrder $purchaseOrder)
@@ -55,5 +63,26 @@ class PurchaseOrderController extends Controller
     }
 
     public function import() {}
-    public function export() {}
+
+    public function export()
+    {
+        $data = DB::table('purchase_orders')->get();
+
+        $csvFileName = 'purchase_orders.csv';
+        $csvPath = 'public/' . $csvFileName;
+        $csvFile = fopen(storage_path('app/' . $csvPath), 'w');
+
+        if ($data->isNotEmpty()) {
+            $headers = array_keys((array) $data[0]);
+            fputcsv($csvFile, $headers);
+
+            foreach ($data as $row) {
+                fputcsv($csvFile, (array) $row);
+            }
+        }
+
+        fclose($csvFile);
+
+        return Response::download(storage_path('app/' . $csvPath), $csvFileName)->deleteFileAfterSend(true);
+    }
 }
