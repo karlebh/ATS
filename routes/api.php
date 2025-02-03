@@ -38,15 +38,26 @@ Route::middleware(['guest'])->group(function () {
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/purchase-orders', [PurchaseOrderController::class, 'index']);
-    Route::get('/purchase-orders/export', [PurchaseOrderController::class, 'export']);
-    Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show']);
-    Route::get('/recent-purchase-orders', [PurchaseOrderController::class, 'recentPurchaseOrders']);
 
-    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
-    Route::patch('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update']);
-    Route::post('/purchase-orders/import', [PurchaseOrderController::class, 'import']);
-    Route::delete('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'destroy']);
+    Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase_orders.index');
+    Route::get('/purchase-orders/export', [PurchaseOrderController::class, 'export'])->name('purchase_orders.export');
+    Route::get('/purchase-orders/recent', [PurchaseOrderController::class, 'recentPurchaseOrders'])->name('purchase_orders.recent');
+    Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase_orders.show');
+    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase_orders.store');
+    Route::patch('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update'])->name('purchase_orders.update');
+    Route::post('/purchase-orders/import', [PurchaseOrderController::class, 'import'])->name('purchase_orders.import');
+    Route::delete('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'destroy'])->name('purchase_orders.destroy');
+
+
+    // Route::get('/purchase-orders', [PurchaseOrderController::class, 'index']);
+    // Route::get('/purchase-orders/export', [PurchaseOrderController::class, 'export']);
+    // Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show']);
+    // Route::get('/recent-purchase-orders', [PurchaseOrderController::class, 'recentPurchaseOrders']);
+
+    // Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
+    // Route::patch('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update']);
+    // Route::post('/purchase-orders/import', [PurchaseOrderController::class, 'import']);
+    // Route::delete('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'destroy']);
 
 
     Route::get('/clients', [ClientController::class, 'index']);
