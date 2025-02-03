@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\PurchaseOrder\ExportAction;
 use App\Actions\PurchaseOrder\FileExportAction;
 use App\Actions\PurchaseOrder\FileImportAction;
+use App\Actions\PurchaseOrder\UploadAction;
 use App\Http\Requests\CreatePurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Models\PurchaseOrder;
@@ -49,6 +50,9 @@ class PurchaseOrderController extends Controller
         $files = $request->validate([
             'file.*' => 'nullable|mimes:jpg,jpeg,png,gif,pdf,csv',
         ]);
+
+        //store parts too
+        //DO NOT FORGET
 
         if ($request->has('file')) {
 
@@ -126,17 +130,10 @@ class PurchaseOrderController extends Controller
             'file.*' => 'nullable|mimes:jpg,jpeg,png,gif,pdf,csv',
         ]);
 
-        if (empty($files)) {
-            abort(422, 'No files were uploaded.');
+        try {
+            return (new UploadAction())->execute($files);
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("An error occurred", $exception);
         }
-
-        $paths = [];
-
-        foreach ($files['file'] as $file) {
-            $fileName = now()->timestamp . '-' . Str::random(20) . '.' . $file->getClientOriginalExtension();
-            $paths[] = $file->storeAs('tmp', $fileName, 'public');
-        }
-
-        return $paths;
     }
 }
