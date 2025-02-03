@@ -22,11 +22,9 @@ class User extends Authenticatable implements CanResetPassword
      */
     protected $fillable = [
         'username',
+        'role',
         'email',
         'password',
-        'otp',
-        'otp_created_at',
-        'otp_token',
     ];
 
     /**
@@ -37,6 +35,9 @@ class User extends Authenticatable implements CanResetPassword
     protected $hidden = [
         'password',
         'remember_token',
+        'otp',
+        'otp_created_at',
+        'otp_token',
     ];
 
     /**
@@ -48,7 +49,9 @@ class User extends Authenticatable implements CanResetPassword
     {
         return [
             'email_verified_at' => 'datetime',
+            'otp_verified_at' => 'datetime',
             'password' => 'hashed',
+            'otp' => 'hashed',
         ];
     }
 }

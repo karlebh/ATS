@@ -19,7 +19,6 @@ class JobFactory extends Factory
     public function definition(): array
     {
         return [
-            'client_id'          => Client::factory(),
             'status'             => $this->faker->randomElement(['pending', 'in_progress', 'completed']),
             'start_date'         => $this->faker->dateTimeBetween('-1 month', 'now'),
             'end_date'           => $this->faker->dateTimeBetween('now', '+1 month'),

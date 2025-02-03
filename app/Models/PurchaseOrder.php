@@ -11,8 +11,11 @@ class PurchaseOrder extends Model
     use HasFactory;
 
     protected $fillable = [
-        'client_id',
         'po_number',
+        'job_number',
+        'client_name',
+        'client_email',
+        'client_company_name',
         'budget',
         'progress',
         'status',
@@ -20,9 +23,9 @@ class PurchaseOrder extends Model
         'timeline',
     ];
 
-    public function client()
+    public function parts()
     {
-        $this->belongsTo(Client::class);
+        return $this->hasMany(Part::class);
     }
 
     public function job()
