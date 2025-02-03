@@ -22,21 +22,12 @@ class UpdatePurchaseOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => ['nullable', 'exists:users,id'],
-            'job_id' => ['nullable', 'exists:jobs,id'],
-            'budget' => ['nullable', 'numeric', 'min:0', 'max:9999999999999.99'],
-            'progress' => [
-                'nullable',
-                'string',
-                // Rule::in(['not_started', 'in_progress', 'completed'])
-            ],
-            'status' => [
-                'nullable',
-                'string',
-                // Rule::in(['pending', 'approved', 'rejected'])
-            ],
-            'current_team' => ['nullable', 'string', 'max:255'],
-            'timeline' => ['nullable', 'integer'],
+            'client_name' => ['nullable', 'string'],
+            'client_email' => ['nullable', 'email'],
+            'client_company_name' => ['nullable', 'string'],
+            'budget' => ['nullable', 'numeric', 'min:0', 'max:999999999999999999999.99'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:now'],
         ];
     }
 }

@@ -39,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/purchase-orders/export', [PurchaseOrderController::class, 'export'])->name('purchase_orders.export');
     Route::get('/purchase-orders/recent', [PurchaseOrderController::class, 'recentPurchaseOrders'])->name('purchase_orders.recent');
     Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show'])->name('purchase_orders.show');
+    Route::post('/purchase-orders/import', [PurchaseOrderController::class, 'import'])->name('purchase_orders.import');
     Route::post('/purchase-orders/upload', [PurchaseOrderController::class, 'upload'])->name('purchase_orders.upload');
     Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('purchase_orders.store');
     Route::patch('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update'])->name('purchase_orders.update');
