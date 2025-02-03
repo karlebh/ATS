@@ -13,19 +13,18 @@ return new class extends Migration
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
-            $table->integer('po_number');
+            $table->string('po_number');
             $table->string('client_name');
             $table->string('client_email');
-            $table->string('client_comapny_name');
+            $table->string('client_company_name');
             $table->string('job_number');
             $table->timestamp('start_date');
             $table->timestamp('end_date');
             $table->decimal('budget', 15, 2);
             $table->string('progress')->default('null');
             $table->string('status')->default('null');
-            $table->string('current_team')->default('null');
-
-            $table->json('file')->nullable();
+            $table->string('current_team')->default('inspection_team');
+            $table->json('files')->nullable();
             $table->timestamps();
         });
     }

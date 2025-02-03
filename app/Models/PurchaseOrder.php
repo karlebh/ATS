@@ -22,7 +22,17 @@ class PurchaseOrder extends Model
         'current_team',
         'start_date',
         'end_date',
+        'files',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'budget' => 'float',
+            'start_date' => 'datetime',
+            'end_date' => 'datetime',
+        ];
+    }
 
     public function parts()
     {

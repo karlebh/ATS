@@ -19,13 +19,17 @@ class PurchaseOrderFactory extends Factory
         return [
             'client_name' => $this->faker->name,
             'client_email' => $this->faker->unique()->safeEmail,
-            'client_comapny_name' => $this->faker->company,
+            'client_company_name' => $this->faker->company,
             'job_number' => $this->faker->unique()->bothify('JOB-####'),
-            'po_number' => rand(11111, 99999),
+            'po_number' => rand(1111, 9999),
             'budget' => $this->faker->randomFloat(2, 1000, 50000),
             'progress' => $this->faker->numberBetween(0, 100),
             'status' => $this->faker->randomElement(['pending', 'in_progress', 'completed', 'canceled']),
-            'current_team' => $this->faker->company,
+            'current_team' => $this->faker->randomElement([
+                'admin',
+                'floor_team',
+                'inspection_team'
+            ]),
             'start_date' => $this->faker->dateTimeBetween('now', '+1 year'),
             'end_date' => $this->faker->dateTimeBetween('now', '+1 year'),
         ];

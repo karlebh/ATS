@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Actioms\PurchaseOrder\ExportAction;
+use App\Actioms\PurchaseOrder\FileExportAction;
 use App\Http\Requests\CreatePurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Models\PurchaseOrder;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PurchaseOrderController extends Controller
 {
@@ -36,12 +41,31 @@ class PurchaseOrderController extends Controller
         $purchase_order = PurchaseOrder::create($data);
 
         if (! $purchase_order) {
-            return $this->errorResponse('Could not create Purchase Order');
+            return $this->badRequestResponse('Could not create Purchase Order');
         }
 
-        $this->upload($request, $purchase_order);
+        return $this->successResponse('Upload succesful', $request->all());
 
-        return $this->successResponse('Purchase Order created successfully', ['purchase_order' => $purchase_order]);
+        if ($request->has('file')) {
+
+            return $this->successResponse('Upload succesful', $request->all());
+            $files = [];
+
+            foreach ($request->input('file.*')['file'] as $file) {
+                $newFilename = Str::after($file, 'tmp/');
+                $toUploadFilePath = "uploads/$newFilename";
+                Storage::disk('public')->move($file, $toUploadFilePath);
+                $files[] = $toUploadFilePath;
+            }
+
+            return $this->successResponse('Upload succesful', [$files]);
+
+            $purchase_order->update(['files' => json_encode($files)]);
+        } else {
+            return '';
+        }
+
+        return $this->successResponse('Purchase Order created successfully', ['purchase_order' => $purchase_order->fresh()]);
     }
 
     public function update(UpdatePurchaseOrderRequest $request, PurchaseOrder $purchaseOrder)
@@ -61,72 +85,66 @@ class PurchaseOrderController extends Controller
     {
         return $purchaseOrder->delete()
             ?  $this->successResponse('Purchase Order deleted successfully')
-            : $this->errorResponse('Could not delete Purchase Order');
+            : $this->badRequestResponse('Could not delete Purchase Order');
     }
 
     public function import() {}
 
+
     public function export()
     {
-        $data = DB::table('purchase_orders')->get();
-
-        $csvFileName = 'purchase_orders.csv';
-        $csvPath = 'public/' . $csvFileName;
-        $csvFile = fopen(storage_path('app/' . $csvPath), 'w');
-
-        if ($data->isNotEmpty()) {
-            $headers = array_keys((array) $data[0]);
-            fputcsv($csvFile, $headers);
-
-            foreach ($data as $row) {
-                fputcsv($csvFile, (array) $row);
-            }
+        try {
+            return (new FileExportAction())->execute();
+        } catch (\Exception $exception) {
+            return $this->serverErrorResponse("An error occurred", $exception);
         }
-
-        fclose($csvFile);
-
-        return Response::download(storage_path('app/' . $csvPath), $csvFileName)->deleteFileAfterSend(true);
     }
 
-    private function upload($request, $purchase_order)
+    public function revert(Request $request)
     {
-        if ($request->has('files')) {
-            $files = $request->validate([
-                'files.*' => 'nullable|mimes:jpg,jpeg,png,gif,pdf,csv',
-            ]);
+        Storage::disk('public')->delete($request->getContent());
+    }
 
-            $store = [];
+    public function upload(Request $request)
+    {
+        $files = $request->validate([
+            'file.*' => 'nullable|mimes:jpg,jpeg,png,gif,pdf,csv',
+        ]);
 
-            try {
-                foreach ($files['files'] as $file) {
-                    $fileName = time() . '.' . $file->extension();
-                    $file->storeAs('uploads', $fileName, 'public');
-                    array_push($store, $fileName);
-                }
-
-                $store = json_encode($store);
-
-                $purchase_order->update(['files' => $store]);
-
-                return true;
-            } catch (\Throwable $th) {
-                $this->errorResponse('File upload failed', exception: $th);
-                return false;
-            }
-
-            return false;
+        if (empty($files)) {
+            abort(422, 'No files were uploaded.');
         }
+
+        $paths = [];
+
+        foreach ($files['file'] as $file) {
+            $fileName = now()->timestamp . '-' . Str::random(20) . '.' . $file->getClientOriginalExtension();
+            $paths[] = $file->storeAs('tmp', $fileName, 'public');
+        }
+
+        return $paths;
     }
 
     private function deleteOldFiles($oldFilesJson)
     {
-        $oldFiles = json_decode($oldFilesJson, true);
+        try {
+            $oldFiles = json_decode($oldFilesJson, true);
 
-        foreach ($oldFiles as $oldFile) {
-            $filePath = storage_path('app/uploads/' . $oldFile);
-            if (file_exists($filePath)) {
-                unlink($filePath);
+            if (!is_array($oldFiles)) {
+                $this->badRequestResponse('Invalid JSON format: Expected an array.');
             }
+
+            foreach ($oldFiles as $oldFile) {
+                $filePath = storage_path('app/uploads/' . $oldFile);
+
+                if (file_exists($filePath)) {
+                    if (!unlink($filePath)) {
+                        $this->badRequestResponse("Failed to delete file: {$filePath}");
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            $this->badRequestResponse('Error deleting old files', exception: $e);
         }
     }
 }
