@@ -24,19 +24,10 @@ class CreatePurchaseOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => ['required', 'exists:users,id'],
-            'job_id' => ['required', 'exists:jobs,id'],
+            'client_name' => ['required', 'string'],
+            'client_company' => ['required', 'string'],
+            'client_company_name' => ['required', 'string'],
             'budget' => ['required', 'numeric', 'min:0', 'max:9999999999999.99'],
-            'progress' => [
-                'required',
-                'string',
-                // Rule::in(['not_started', 'in_progress', 'completed'])
-            ],
-            'status' => [
-                'required',
-                'string',
-                // Rule::in(['pending', 'approved', 'rejected'])
-            ],
             'current_team' => ['required', 'string', 'max:255'],
             'timeline' => ['required', 'integer'],
         ];

@@ -28,7 +28,6 @@ class PurchaseOrderFactory extends Factory
             'current_team' => $this->faker->company,
             'start_date' => $this->faker->dateTimeBetween('now', '+1 year'),
             'end_date' => $this->faker->dateTimeBetween('now', '+1 year'),
-            'timeline' => $this->faker->dateTimeBetween('now', '+1 year'),
         ];
     }
 }

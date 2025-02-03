@@ -39,6 +39,8 @@ class PurchaseOrderController extends Controller
             return $this->errorResponse('Could not create Purchase Order');
         }
 
+        $this->upload($request, $purchase_order);
+
         return $this->successResponse('Purchase Order created successfully', ['purchase_order' => $purchase_order]);
     }
 
@@ -84,5 +86,47 @@ class PurchaseOrderController extends Controller
         fclose($csvFile);
 
         return Response::download(storage_path('app/' . $csvPath), $csvFileName)->deleteFileAfterSend(true);
+    }
+
+    private function upload($request, $purchase_order)
+    {
+        if ($request->has('files')) {
+            $files = $request->validate([
+                'files.*' => 'nullable|mimes:jpg,jpeg,png,gif,pdf,csv',
+            ]);
+
+            $store = [];
+
+            try {
+                foreach ($files['files'] as $file) {
+                    $fileName = time() . '.' . $file->extension();
+                    $file->storeAs('uploads', $fileName, 'public');
+                    array_push($store, $fileName);
+                }
+
+                $store = json_encode($store);
+
+                $purchase_order->update(['files' => $store]);
+
+                return true;
+            } catch (\Throwable $th) {
+                $this->errorResponse('File upload failed', exception: $th);
+                return false;
+            }
+
+            return false;
+        }
+    }
+
+    private function deleteOldFiles($oldFilesJson)
+    {
+        $oldFiles = json_decode($oldFilesJson, true);
+
+        foreach ($oldFiles as $oldFile) {
+            $filePath = storage_path('app/uploads/' . $oldFile);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
     }
 }

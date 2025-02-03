@@ -24,7 +24,6 @@ return new class extends Migration
             $table->string('progress')->default('null');
             $table->string('status')->default('null');
             $table->string('current_team')->default('null');
-            $table->string('timeline')->nullable();
 
             $table->json('file')->nullable();
             $table->timestamps();

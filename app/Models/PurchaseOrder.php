@@ -20,7 +20,8 @@ class PurchaseOrder extends Model
         'progress',
         'status',
         'current_team',
-        'timeline',
+        'start_date',
+        'end_date',
     ];
 
     public function parts()
@@ -28,8 +29,13 @@ class PurchaseOrder extends Model
         return $this->hasMany(Part::class);
     }
 
-    public function job()
+    public static function boot()
     {
-        $this->belongsTo(Job::class);
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->po_number = time() . mt_rand(1000, 9999);
+            $model->job_number = time() . mt_rand(100, 999);
+        });
     }
 }
